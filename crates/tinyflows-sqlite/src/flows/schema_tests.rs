@@ -198,7 +198,8 @@ fn newer_on_disk_schema_is_rejected_without_overwriting_its_version() {
     let newer_version = super::FLOWS_DB_SCHEMA_VERSION + 1;
     {
         let raw = rusqlite::Connection::open(&db_path).unwrap();
-        raw.pragma_update(None, "user_version", newer_version).unwrap();
+        raw.pragma_update(None, "user_version", newer_version)
+            .unwrap();
     }
 
     let error = list_flows(&dir).unwrap_err().to_string();

@@ -15,7 +15,7 @@
 //! checkpoints live in their own `checkpoints.db`, written by
 //! [`crate::checkpoint`].
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
