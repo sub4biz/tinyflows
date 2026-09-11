@@ -15,7 +15,7 @@
 //! checkpoints live in their own `checkpoints.db`, written by
 //! [`crate::checkpoint`].
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use rusqlite::Connection;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -108,16 +108,25 @@ const FLOWS_DB_SCHEMA_VERSION: i64 = 1;
 /// has since been deleted or replaced, which is worth a warning; a path absent
 /// from the set is an ordinary first-ever init and stays silent.
 fn ensure_schema_initialized(conn: &Connection, db_path: &Path) -> Result<()> {
-    let is_current = || -> bool {
+    let schema_version = || -> Result<i64> {
         conn.query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
-            .unwrap_or(0)
-            == FLOWS_DB_SCHEMA_VERSION
+            .context("Failed to read flows schema version")
+    };
+    let reject_newer_schema = |version: i64| -> Result<()> {
+        if version > FLOWS_DB_SCHEMA_VERSION {
+            bail!(
+                "Unsupported flows database schema version {version}; this version supports up to {FLOWS_DB_SCHEMA_VERSION}"
+            );
+        }
+        Ok(())
     };
 
     // Lock-free fast path: an already-migrated database carries
     // FLOWS_DB_SCHEMA_VERSION in its header, so the common case never acquires
     // the process-global initialization mutex.
-    if is_current() {
+    let version = schema_version()?;
+    reject_newer_schema(version)?;
+    if version == FLOWS_DB_SCHEMA_VERSION {
         return Ok(());
     }
 
@@ -129,7 +138,9 @@ fn ensure_schema_initialized(conn: &Connection, db_path: &Path) -> Result<()> {
     let mut guard = initialized
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner());
-    if is_current() {
+    let version = schema_version()?;
+    reject_newer_schema(version)?;
+    if version == FLOWS_DB_SCHEMA_VERSION {
         return Ok(());
     }
 

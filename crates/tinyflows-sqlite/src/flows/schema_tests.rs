@@ -186,3 +186,27 @@ fn older_on_disk_schema_under_a_cached_path_is_remigrated() {
     let (flows_final, _) = list_flows(&dir).unwrap();
     assert_eq!(flows_final.len(), 2);
 }
+
+#[test]
+fn newer_on_disk_schema_is_rejected_without_overwriting_its_version() {
+    let tmp = TempDir::new().unwrap();
+    let dir = test_dir(&tmp);
+
+    create_flow(&dir, "existing".to_string(), trigger_graph(), false, true).unwrap();
+
+    let db_path = dir.join("flows.db");
+    let newer_version = super::FLOWS_DB_SCHEMA_VERSION + 1;
+    {
+        let raw = rusqlite::Connection::open(&db_path).unwrap();
+        raw.pragma_update(None, "user_version", newer_version).unwrap();
+    }
+
+    let error = list_flows(&dir).unwrap_err().to_string();
+    assert!(error.contains("Unsupported flows database schema version"));
+
+    let raw = rusqlite::Connection::open(&db_path).unwrap();
+    let version: i64 = raw
+        .query_row("PRAGMA user_version", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(version, newer_version);
+}
