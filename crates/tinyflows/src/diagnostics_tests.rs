@@ -206,6 +206,22 @@ fn a_failure_with_no_readable_message_is_still_reported() {
     );
 }
 
+#[test]
+fn node_error_message_reads_error_from_emitted_item_json() {
+    let output = json!({
+        "nodes": {
+            "notify": {
+                "items": [{"json": {"error": "slug not allowlisted"}}]
+            }
+        }
+    });
+
+    assert_eq!(
+        node_error_message(&output, "notify").as_deref(),
+        Some("slug not allowlisted")
+    );
+}
+
 // ---- nodes that never ran ----
 
 #[test]

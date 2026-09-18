@@ -187,7 +187,7 @@ pub fn diagnose(graph: &WorkflowGraph, steps: &[ExecutionStep]) -> Diagnosis {
         }
         diagnosis.never_ran.push(NeverRan {
             node_id: node.id.clone(),
-            routed_by: upstream_condition(graph, &node.id),
+            routed_by: nearest_upstream_condition(graph, &node.id),
         });
     }
 
@@ -240,7 +240,7 @@ fn null_binding(
 /// Named so the warning can say *why* a node was skipped. "`notify` never ran"
 /// sends an author looking at `notify`; "`notify` never ran — `check` routed
 /// past it" sends them to the node that actually decided.
-fn upstream_condition(graph: &WorkflowGraph, node_id: &str) -> Option<String> {
+pub fn nearest_upstream_condition(graph: &WorkflowGraph, node_id: &str) -> Option<String> {
     let mut seen: HashSet<&str> = HashSet::from([node_id]);
     let mut queue: VecDeque<&str> = VecDeque::from([node_id]);
 
@@ -267,7 +267,7 @@ fn upstream_condition(graph: &WorkflowGraph, node_id: &str) -> Option<String> {
 }
 
 /// The message an errored step left in its output, if it left a readable one.
-fn error_message(output: &serde_json::Value) -> Option<String> {
+pub fn error_message(output: &serde_json::Value) -> Option<String> {
     output
         .get("error")
         .and_then(|e| {
@@ -276,6 +276,18 @@ fn error_message(output: &serde_json::Value) -> Option<String> {
                 .or_else(|| Some(e.to_string()))
         })
         .filter(|message| !message.trim().is_empty())
+}
+
+/// Returns an error message from a node's emitted items in an engine run
+/// output (`output["nodes"][node_id]["items"]`).
+pub fn node_error_message(output: &serde_json::Value, node_id: &str) -> Option<String> {
+    output
+        .get("nodes")?
+        .get(node_id)?
+        .get("items")?
+        .as_array()?
+        .iter()
+        .find_map(|item| item.get("json").and_then(error_message))
 }
 
 /// A [`CapturingObserver`] as the engine's observer handle.
