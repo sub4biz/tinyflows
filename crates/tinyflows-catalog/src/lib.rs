@@ -32,6 +32,7 @@ pub mod build_registry;
 pub mod graph_policy;
 pub mod import;
 pub mod run_registry;
+pub mod run_summary;
 pub mod types;
 
 pub use types::{
