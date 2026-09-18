@@ -26,5 +26,6 @@
 
 pub mod builder;
 pub mod prompts;
+pub mod resources;
 
 pub use builder::{BuildMode, BuilderRequest, render_prompt};
