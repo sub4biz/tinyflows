@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 ---
 name: flow-authoring
 description: The tinyflows authoring reference — expression and jq syntax, node configuration for memory/dedup/trigger nodes, per-node error handling, and how to read a dry run honestly. Read a page before configuring the thing it covers.

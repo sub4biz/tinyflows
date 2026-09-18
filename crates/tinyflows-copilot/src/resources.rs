@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Reference material for authors of tinyflows graphs.
 //!
 //! Hosts decide how these bytes are exposed to an agent.  The content itself

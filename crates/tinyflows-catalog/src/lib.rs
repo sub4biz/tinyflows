@@ -33,6 +33,10 @@ pub mod graph_policy;
 pub mod import;
 pub mod run_registry;
 pub mod run_summary;
+
+#[cfg(test)]
+#[path = "run_summary_tests.rs"]
+mod run_summary_tests;
 pub mod types;
 
 pub use types::{

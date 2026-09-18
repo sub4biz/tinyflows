@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 # Expressions
 
 Use a literal value unless a field must be derived at run time.  A value that
