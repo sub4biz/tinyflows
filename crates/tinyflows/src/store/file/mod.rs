@@ -90,8 +90,8 @@ fn scoped_state_dir(state_dir: &Path, workspace: &Path) -> PathBuf {
 /// drift.
 pub fn workspace_scope(workspace: &Path) -> String {
     let identity = std::fs::canonicalize(workspace).unwrap_or_else(|_| absolute_path(workspace));
-    let digest = Sha256::digest(identity.to_string_lossy().as_bytes());
-    format!("{digest:x}")[..16].to_string()
+    let digest = hex::encode(Sha256::digest(identity.to_string_lossy().as_bytes()));
+    digest[..16].to_string()
 }
 
 /// A file-backed proposal decision claim released when dropped.

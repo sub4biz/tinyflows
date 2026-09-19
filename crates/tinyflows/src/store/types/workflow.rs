@@ -128,7 +128,7 @@ pub fn record_fingerprint(record: &WorkflowRecord) -> String {
     let mut persisted = record.clone();
     persisted.source_path = None;
     match serde_json::to_vec(&persisted) {
-        Ok(canonical) => format!("{:x}", Sha256::digest(&canonical)),
+        Ok(canonical) => hex::encode(Sha256::digest(&canonical)),
         // Same reasoning as `proposal::fingerprint`: hashing empty bytes on a
         // serialization failure would let a compare-and-swap write accept a
         // stale record whenever both the expected and current record happen
