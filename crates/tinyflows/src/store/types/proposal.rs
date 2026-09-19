@@ -125,7 +125,7 @@ impl WorkflowProposal {
 pub fn fingerprint(graph: &crate::model::WorkflowGraph) -> String {
     use sha2::{Digest, Sha256};
     match serde_json::to_vec(graph) {
-        Ok(canonical) => format!("{:x}", Sha256::digest(&canonical)),
+        Ok(canonical) => hex::encode(Sha256::digest(&canonical)),
         // A graph that fails to serialize (a non-finite `Position`, for
         // instance) must not fingerprint the same as every other graph that
         // also fails to serialize. Hashing empty bytes would do exactly that,

@@ -26,10 +26,7 @@ pub fn workflow_dirs(home: &Path, cwd: &Path, project_dir: &str) -> Vec<PathBuf>
 /// State shared by stores writing the same catalog, beneath the caller's root.
 pub(crate) fn definition_state_dir(state_root: &Path, dirs: &[PathBuf]) -> PathBuf {
     let write_dir = catalog_identity(dirs);
-    let scope = format!(
-        "{:x}",
-        Sha256::digest(write_dir.as_os_str().as_encoded_bytes())
-    );
+    let scope = hex::encode(Sha256::digest(write_dir.as_os_str().as_encoded_bytes()));
     state_root.join("definitions").join(scope)
 }
 

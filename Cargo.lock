@@ -2520,6 +2520,7 @@ dependencies = [
  "futures-timer",
  "futures-util",
  "getrandom 0.4.3",
+ "hex",
  "image",
  "jaq-core",
  "jaq-json",
