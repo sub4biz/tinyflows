@@ -155,7 +155,9 @@ CREATE TABLE IF NOT EXISTS checkpoints (
     source               TEXT    NOT NULL,
     step                 INTEGER NOT NULL,
     has_interrupts       INTEGER NOT NULL,
-    record               TEXT    NOT NULL
+    record               TEXT    NOT NULL,
+    format_version       INTEGER NOT NULL DEFAULT 1,
+    created_at           INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_checkpoints_thread ON checkpoints (thread_id, seq);
 CREATE INDEX IF NOT EXISTS idx_checkpoints_lookup ON checkpoints (thread_id, checkpoint_id);
@@ -176,6 +178,17 @@ CREATE TABLE IF NOT EXISTS checkpoint_writes (
 );
 CREATE INDEX IF NOT EXISTS idx_checkpoint_writes_thread
     ON checkpoint_writes (thread_id, checkpoint_id);
+
+-- C3/R4: the durable half of the per-thread execution lease. The executor
+-- holds an in-process lock for the run's lifetime (see
+-- `compiled::executor::execute`) AND claims this row, so a lease surviving a
+-- crashed owner past its TTL is reclaimable by a different process instead of
+-- stranding the thread forever.
+CREATE TABLE IF NOT EXISTS thread_leases (
+    thread_id  TEXT    PRIMARY KEY,
+    owner      TEXT    NOT NULL,
+    expires_at INTEGER NOT NULL
+);
 ";
 
 /// tinyflows keeps its own copy `pub(crate)`, so the port carries one. Same
