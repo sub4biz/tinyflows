@@ -287,8 +287,7 @@ pub fn node_error_message(output: &serde_json::Value, node_id: &str) -> Option<S
         .get("items")?
         .as_array()?
         .iter()
-        .find_map(|item| item.get("json").and_then(|json| json.get("error")))
-        .and_then(error_message)
+        .find_map(|item| item.get("json").and_then(error_message))
 }
 
 /// A [`CapturingObserver`] as the engine's observer handle.

@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 # Reading a dry run
 
 A dry run evaluates the graph without committing the real side effects.  It is

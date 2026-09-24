@@ -1,3 +1,4 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 # Node configuration
 
 `get_node_kind_contract` is the source of truth for a node's fields, ports,

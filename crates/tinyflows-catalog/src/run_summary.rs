@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
 //! Portable settlement rules for saved workflow run history.
 
 use serde_json::Value;
@@ -32,10 +33,16 @@ pub fn settle_steps(observed: Vec<FlowRunStep>, output: &Value) -> Vec<FlowRunSt
     }
     let mut settled = observed;
     for step in reconstructed {
-        if !settled
-            .iter()
-            .any(|existing| existing.node_id == step.node_id)
+        if let Some(existing) = settled
+            .iter_mut()
+            .find(|existing| existing.node_id == step.node_id)
         {
+            // The live observer has richer timing/status data, but only the
+            // post-hoc output knows which branch a routing node selected.
+            if existing.port.is_none() {
+                existing.port = step.port;
+            }
+        } else {
             settled.push(step);
         }
     }
